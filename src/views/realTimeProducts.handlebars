@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Real-Time Products</title>
+  <link rel="stylesheet" type="text/css" href="/styles.css">
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+
+    socket.on('connect', () => {
+      console.log('Connected to WebSocket');
+    });
+
+    socket.on('productAdded', (newProduct) => {
+      const productList = document.getElementById('productList');
+      const li = document.createElement('li');
+      li.setAttribute('data-id', newProduct._id); 
+      li.innerHTML = `
+        <span>${newProduct.title} - $${newProduct.price}</span>
+        <button onclick="addProductToCart('${newProduct._id}')">Add to Cart</button>
+      `;
+      productList.appendChild(li);
+    });
+
+    socket.on('productDeleted', (productId) => {
+      const productList = document.getElementById('productList');
+      const liToRemove = productList.querySelector(`[data-id="${productId}"]`);
+      if (liToRemove) {
+        liToRemove.remove();
+      }
+    });
+
+    function addProductToCart(productId) {
+      const user_id = '{{userId}}'; 
+      fetch(`/api/carts/${user_id}/products/${productId}`, {
+        method: 'POST',
+        body: JSON.stringify({ quantity: 1 }), 
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log('Product added to cart:', data);
+      })
+      .catch((error) => {
+        console.error('Error adding product to cart:', error);
+      });
+    }
+  </script>
+</head>
+<body>
+  <h1>Real-Time Product List</h1>
+  <ul id="productList">
+    {{#each products}}
+      <li data-id="{{this._id}}">
+        <span>{{this.title}} - ${{this.price}}</span>
+        <button onclick="addProductToCart('{{this._id}}')">Add to Cart</button>
+      </li>
+    {{/each}}
+  </ul>
+</body>
+</html>

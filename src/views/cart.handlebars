@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Cart</title>
+</head>
+<body>
+    <h1>Your Cart</h1>
+    <ul>
+        {{#each items}}
+        <li>
+            <h2>{{this.product.title}}</h2>
+            <p>Price: ${{this.product.price}}</p>
+            <p>Quantity: {{this.quantity}}</p>
+        </li>
+        {{/each}}
+    </ul>
+</body>
+</html>
